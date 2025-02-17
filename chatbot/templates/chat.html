@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            padding: 20px;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: scroll;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .user-message {
+            background-color: #e0e0e0;
+            align-self: flex-end;
+        }
+        .bot-message {
+            background-color: #d1e7ff;
+            align-self: flex-start;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 80%;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <h2>Chatbot</h2>
+
+    <div class="chat-box" id="chat-box">
+        <!-- Chat messages will appear here -->
+    </div>
+
+    <div>
+        <input type="text" id="user-input" placeholder="Type your message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    function displayMessage(message, isBot) {
+        const chatBox = document.getElementById('chat-box');
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        if (isBot) {
+            messageDiv.classList.add('bot-message');
+        } else {
+            messageDiv.classList.add('user-message');
+        }
+        messageDiv.textContent = message;
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the latest message
+    }
+
+    function sendMessage() {
+        const userMessage = document.getElementById('user-input').value;
+        if (userMessage.trim() === '') return;
+
+        // Display user's message
+        displayMessage(userMessage, false);
+        document.getElementById('user-input').value = ''; // Clear the input field
+
+        // Send message to the server and get the response
+        fetch(`/chatbot/chat/?message=${encodeURIComponent(userMessage)}`)
+            .then(response => response.json())
+            .then(data => {
+                const botResponse = data.response;
+                displayMessage(botResponse, true); // Display bot's response
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                displayMessage('Sorry, something went wrong. Please try again later.', true);
+            });
+    }
+</script>
+
+</body>
+</html>
